@@ -12,7 +12,7 @@ inputs:
     description: "Command to build your application"
     required: false
     default: "npm run build"
-  dist-dir:
+  build-dir:
     description: "Directory containing build output to deploy"
     required: true
   project-name:
@@ -33,13 +33,26 @@ runs:
         echo ""
         echo "1. Go to https://app.orbiter.host/api-keys"
         echo "2. Generate a new API key"
-        echo "3. Go to this repository's Settings > Secrets and Variables > Actions"
+        echo "3. Go to https://github.com/${{ github.repository }}/settings/secrets/actions"
         echo "4. Click 'New repository secret'"
         echo "5. Name: ORBITER_API_KEY"
         echo "6. Value: Your API key from step 2"
         echo "7. Click 'Add secret'"
         echo ""
         echo "Once done, re-run this workflow."
+          exit 1
+        fi
+
+    - name: Check required inputs
+      shell: bash
+      run: |
+        if [ -z "${{ inputs.build-dir }}" ]; then
+          echo "🚨 build-dir input is required but was not provided"
+          exit 1
+        fi
+
+        if [ -z "${{ inputs.project-name }}" ]; then
+          echo "🚨 project-name input is required but was not provided"
           exit 1
         fi
 
@@ -60,4 +73,4 @@ runs:
       shell: bash
       env:
         ORBITER_API_KEY: ${{ inputs.api-key }}
-      run: npx orbiter-cli update -d ${{ inputs.project-name }} ${{ inputs.dist-dir }}
+      run: npx orbiter-cli update -d ${{ inputs.project-name }} ${{ inputs.build-dir }}
