@@ -31,7 +31,7 @@ runs:
         if [ -z "${{ inputs.api-key }}" ]; then
         echo "🚨 ORBITER_API_KEY not found! Please follow these steps:"
         echo ""
-        echo "1. Go to https://orbiter.host/account/api-keys"
+        echo "1. Go to https://app.orbiter.host/api-keys"
         echo "2. Generate a new API key"
         echo "3. Go to this repository's Settings > Secrets and Variables > Actions"
         echo "4. Click 'New repository secret'"
