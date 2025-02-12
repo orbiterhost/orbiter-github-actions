@@ -1,0 +1,42 @@
+name: 'Deploy to Orbiter'
+description: 'Deploy your static app to Orbiter'
+inputs:
+  node-version:
+    description: 'Node.js version to use'
+    required: false
+    default: '20.x'
+  build-command:
+    description: 'Command to build your application'
+    required: false
+    default: 'npm run build'
+  dist-dir:
+    description: 'Directory containing build output to deploy'
+    required: true
+  project-name:
+    description: 'Name of your Orbiter project'
+    required: true
+  api-key:
+    description: 'Orbiter API key'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Install dependencies
+      shell: bash
+      run: npm ci
+
+    - name: Build
+      shell: bash
+      run: ${{ inputs.build-command }}
+
+    - name: Deploy to Orbiter
+      shell: bash
+      env:
+        ORBITER_API_KEY: ${{ inputs.api-key }}
+      run: npx orbiter-cli update -d ${{ inputs.project-name }} ${{ inputs.dist-dir }}
