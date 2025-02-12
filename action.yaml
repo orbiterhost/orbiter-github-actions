@@ -40,3 +40,4 @@ runs:
       env:
         ORBITER_API_KEY: ${{ inputs.api-key }}
       run: npx orbiter-cli update -d ${{ inputs.project-name }} ${{ inputs.dist-dir }}
+
