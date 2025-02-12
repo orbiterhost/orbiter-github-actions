@@ -1,7 +1,8 @@
 name: 'Deploy to Orbiter'
 description: 'Deploy your static app to Orbiter'
-icon: upload-cloud
-color: blue
+branding:
+  icon: 'upload-cloud'
+  color: 'blue'
 inputs:
   node-version:
     description: 'Node.js version to use'
