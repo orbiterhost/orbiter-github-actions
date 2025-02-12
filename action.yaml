@@ -1,30 +1,48 @@
-name: 'Deploy to Orbiter'
-description: 'Deploy your static app to Orbiter'
+name: "Deploy to Orbiter"
+description: "Deploy your static app to Orbiter"
 branding:
-  icon: 'upload-cloud'
-  color: 'blue'
+  icon: "upload-cloud"
+  color: "blue"
 inputs:
   node-version:
-    description: 'Node.js version to use'
+    description: "Node.js version to use"
     required: false
-    default: '20.x'
+    default: "20.x"
   build-command:
-    description: 'Command to build your application'
+    description: "Command to build your application"
     required: false
-    default: 'npm run build'
+    default: "npm run build"
   dist-dir:
-    description: 'Directory containing build output to deploy'
+    description: "Directory containing build output to deploy"
     required: true
   project-name:
-    description: 'Name of your Orbiter project'
+    description: "Name of your Orbiter project"
     required: true
   api-key:
-    description: 'Orbiter API key'
+    description: "Orbiter API key"
     required: true
 
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
+    - name: Check if API key exists
+      shell: bash
+      run: |
+        if [ -z "${{ inputs.api-key }}" ]; then
+        echo "🚨 ORBITER_API_KEY not found! Please follow these steps:"
+        echo ""
+        echo "1. Go to https://orbiter.host/account/api-keys"
+        echo "2. Generate a new API key"
+        echo "3. Go to this repository's Settings > Secrets and Variables > Actions"
+        echo "4. Click 'New repository secret'"
+        echo "5. Name: ORBITER_API_KEY"
+        echo "6. Value: Your API key from step 2"
+        echo "7. Click 'Add secret'"
+        echo ""
+        echo "Once done, re-run this workflow."
+          exit 1
+        fi
+
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
@@ -43,4 +61,3 @@ runs:
       env:
         ORBITER_API_KEY: ${{ inputs.api-key }}
       run: npx orbiter-cli update -d ${{ inputs.project-name }} ${{ inputs.dist-dir }}
-
