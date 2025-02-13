@@ -42,7 +42,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Deploy to Orbiter
-        uses: orbiterhost/orbiter-github-actions@v0.0.8 # Update with latest version
+        uses: orbiterhost/orbiter-github-actions@v0.1.0 # Update with latest version
         with:
           project-name: "mysite" # Name of your project
           build-dir: "./dist" # Name of the build output directory
