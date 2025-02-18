@@ -59,62 +59,62 @@ runs:
           echo "🚨 project-name input is required but was not provided"
           exit 1
         fi
-        - name: Setup Node.js
-          uses: actions/setup-node@v3
-          with:
-            node-version: ${{ inputs.node-version }}
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ inputs.node-version }}
 
-        - name: Setup pnpm
-          if: inputs.package-manager == 'pnpm'
-          uses: pnpm/action-setup@v2
-          with:
-            version: latest
+    - name: Setup pnpm
+      if: inputs.package-manager == 'pnpm'
+      uses: pnpm/action-setup@v2
+      with:
+        version: latest
 
-        - name: Setup yarn
-          if: inputs.package-manager == 'yarn'
-          shell: bash
-          run: npm install -g yarn
+    - name: Setup yarn
+      if: inputs.package-manager == 'yarn'
+      shell: bash
+      run: npm install -g yarn
 
-        - name: Install dependencies
-          shell: bash
-          run: |
-            case "${{ inputs.package-manager }}" in
-              "npm")
-                npm ci
-                ;;
-              "yarn")
-                yarn install --frozen-lockfile
-                ;;
-              "pnpm")
-                pnpm install --frozen-lockfile
-                ;;
-              *)
-                echo "Unsupported package manager: ${{ inputs.package-manager }}"
-                exit 1
-                ;;
-            esac
+    - name: Install dependencies
+      shell: bash
+      run: |
+        case "${{ inputs.package-manager }}" in
+          "npm")
+            npm ci
+            ;;
+          "yarn")
+            yarn install --frozen-lockfile
+            ;;
+          "pnpm")
+            pnpm install --frozen-lockfile
+            ;;
+          *)
+            echo "Unsupported package manager: ${{ inputs.package-manager }}"
+            exit 1
+            ;;
+        esac
 
-        - name: Build
-          shell: bash
-          run: |
-            case "${{ inputs.package-manager }}" in
-              "npm")
-                ${{ inputs.build-command }}
-                ;;
-              "yarn")
-                yarn ${inputs.build-command#npm run}
-                ;;
-              "pnpm")
-                pnpm ${inputs.build-command#npm run}
-                ;;
-              *)
-                echo "Unsupported package manager: ${{ inputs.package-manager }}"
-                exit 1
-                ;;
-            esac
+    - name: Build
+      shell: bash
+      run: |
+        case "${{ inputs.package-manager }}" in
+          "npm")
+            ${{ inputs.build-command }}
+            ;;
+          "yarn")
+            yarn ${inputs.build-command#npm run}
+            ;;
+          "pnpm")
+            pnpm ${inputs.build-command#npm run}
+            ;;
+          *)
+            echo "Unsupported package manager: ${{ inputs.package-manager }}"
+            exit 1
+            ;;
+        esac
 
-        - name: Deploy to Orbiter
-          shell: bash
-          env:
-            ORBITER_API_KEY: ${{ inputs.api-key }}
-          run: npx orbiter-cli update -d ${{ inputs.project-name }} ${{ inputs.build-dir }}
+    - name: Deploy to Orbiter
+      shell: bash
+      env:
+        ORBITER_API_KEY: ${{ inputs.api-key }}
+      run: npx orbiter-cli update -d ${{ inputs.project-name }} ${{ inputs.build-dir }}
