@@ -8,10 +8,6 @@ inputs:
     description: "Node.js version to use"
     required: false
     default: "20.x"
-  package-manager:
-    description: "Package manager to use (npm, yarn, or pnpm)"
-    required: false
-    default: "npm"
   build-command:
     description: "Command to build your application"
     required: false
@@ -59,59 +55,60 @@ runs:
           echo "🚨 project-name input is required but was not provided"
           exit 1
         fi
+
+    - name: Detect package manager
+      shell: bash
+      id: detect-pm
+      run: |
+        BUILD_CMD="${{ inputs.build-command }}"
+        if [[ $BUILD_CMD == "npm "* ]]; then
+          echo "manager=npm" >> $GITHUB_OUTPUT
+        elif [[ $BUILD_CMD == "yarn "* ]]; then
+          echo "manager=yarn" >> $GITHUB_OUTPUT
+        elif [[ $BUILD_CMD == "pnpm "* ]]; then
+          echo "manager=pnpm" >> $GITHUB_OUTPUT
+        else
+          echo "manager=npm" >> $GITHUB_OUTPUT
+        fi
+
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
         node-version: ${{ inputs.node-version }}
 
     - name: Setup pnpm
-      if: inputs.package-manager == 'pnpm'
+      if: steps.detect-pm.outputs.manager == 'pnpm'
       uses: pnpm/action-setup@v2
       with:
         version: latest
 
     - name: Setup yarn
-      if: inputs.package-manager == 'yarn'
+      if: steps.detect-pm.outputs.manager == 'yarn'
       shell: bash
       run: npm install -g yarn
 
-    - name: Build
+    - name: Install dependencies
       shell: bash
       run: |
-        case "${{ inputs.package-manager }}" in
+        case "${{ steps.detect-pm.outputs.manager }}" in
           "npm")
-            ${{ inputs.build-command }}
+            npm ci
             ;;
           "yarn")
-            yarn run ${inputs.build-command#"npm run"}
+            yarn install --frozen-lockfile
             ;;
           "pnpm")
-            pnpm run ${inputs.build-command#"npm run"}
+            pnpm install --frozen-lockfile
             ;;
           *)
-            echo "Unsupported package manager: ${{ inputs.package-manager }}"
+            echo "Unsupported package manager: ${{ steps.detect-pm.outputs.manager }}"
             exit 1
             ;;
         esac
 
     - name: Build
       shell: bash
-      run: |
-        case "${{ inputs.package-manager }}" in
-          "npm")
-            ${{ inputs.build-command }}
-            ;;
-          "yarn")
-            yarn ${inputs.build-command#npm run}
-            ;;
-          "pnpm")
-            pnpm ${inputs.build-command#npm run}
-            ;;
-          *)
-            echo "Unsupported package manager: ${{ inputs.package-manager }}"
-            exit 1
-            ;;
-        esac
+      run: ${{ inputs.build-command }}
 
     - name: Deploy to Orbiter
       shell: bash
