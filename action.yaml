@@ -75,18 +75,18 @@ runs:
       shell: bash
       run: npm install -g yarn
 
-    - name: Install dependencies
+    - name: Build
       shell: bash
       run: |
         case "${{ inputs.package-manager }}" in
           "npm")
-            npm ci
+            ${{ inputs.build-command }}
             ;;
           "yarn")
-            yarn install --frozen-lockfile
+            yarn run ${inputs.build-command#"npm run"}
             ;;
           "pnpm")
-            pnpm install --frozen-lockfile
+            pnpm run ${inputs.build-command#"npm run"}
             ;;
           *)
             echo "Unsupported package manager: ${{ inputs.package-manager }}"
