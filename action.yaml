@@ -67,6 +67,8 @@ runs:
           echo "manager=yarn" >> $GITHUB_OUTPUT
         elif [[ $BUILD_CMD == "pnpm "* ]]; then
           echo "manager=pnpm" >> $GITHUB_OUTPUT
+        elif [[ $BUILD_CMD == "bun "* ]]; then
+          echo "manager=bun" >> $GITHUB_OUTPUT
         else
           echo "manager=npm" >> $GITHUB_OUTPUT
         fi
@@ -87,6 +89,11 @@ runs:
       shell: bash
       run: npm install -g yarn
 
+    - name: Setup Bun
+      if: steps.detect-pm.outputs.manager == 'bun'
+      shell: bash
+      run: npm install -g bun
+
     - name: Install dependencies
       shell: bash
       run: |
@@ -99,6 +106,9 @@ runs:
             ;;
           "pnpm")
             pnpm install --frozen-lockfile
+            ;;
+          "bun")
+            bun install
             ;;
           *)
             echo "Unsupported package manager: ${{ steps.detect-pm.outputs.manager }}"
