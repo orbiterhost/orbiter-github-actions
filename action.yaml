@@ -124,4 +124,5 @@ runs:
       shell: bash
       env:
         ORBITER_API_KEY: ${{ inputs.api-key }}
+        SOURCE: github-action
       run: npx orbiter-cli update -d ${{ inputs.project-name }} ${{ inputs.build-dir }}
